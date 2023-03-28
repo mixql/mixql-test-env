@@ -8,9 +8,8 @@ site:
 #  html_extension_style: drop
 content:
   sources:
-    #  For local "author mode" builds check out this antora playbook project
-    - url: .
-      start_path: docs
+  - url: .
+    start_path: docs
 
 ui:
   bundle:

@@ -18,6 +18,7 @@ To experiment with Hadoop, you can use the images from xref:getting-started-bigt
 
 === Getting Started with Docker
 
+* https://docs.docker.com/get-started/[Getting Started with Docker]
 * https://docs.docker.com/desktop/[Install Docker Desktop]
 * https://docs.docker.com/compose/[Docker Compose Overview]
 

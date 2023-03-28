@@ -135,11 +135,13 @@ Source must be placed in parent folder like this:
 |mixql-test-env  <- test environment
 ----
 
+Create folders and get the code:
 [,console]
 ----
-    mkdir mixql && cd mixql
-    git clone https://github.com/ntlegion/mixql-test-env.git
-    git clone https://github.com/mixql/mixql-platform.git
+mkdir mixql && cd mixql
+git clone https://github.com/ntlegion/mixql-test-env.git
+git clone https://github.com/mixql/mixql-platform.git
+cd mixql-test-env
 ----
 
 === Compile app from host source
@@ -208,9 +210,9 @@ include::partial$mixql-env.adoc[]
 
 === Rebuild images
 
-To rebuild only Hadoop image: `docker compose build main`.
+To build only Hadoop image: `docker compose build main`.
 
-To rebuild all image: `docker compose build`
+To rebuild all image: `docker compose build --no-cache`
 
 === Prepared commands for hadoop container entrypoint
 
@@ -218,6 +220,7 @@ To rebuild all image: `docker compose build`
 docker compose exec main entrypoint.sh COMMAND
 ----
 COMMAND:
+
 * puppet - install Hadoop services by puppet
 * run - run precompiled app from /mixql/app;
 * run-host - run compiled app from /mixql-host/app. Be sure app is ready to use (is compiled);
