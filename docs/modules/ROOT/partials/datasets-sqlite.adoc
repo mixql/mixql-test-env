@@ -1,0 +1,54 @@
+
+=== Sakila
+Inside the container on the path `/mixql/samples/db/sakila.db` is a https://code.google.com/archive/p/sakila-sample-database-ports/[port] of the https://dev.mysql.com/doc/sakila/en/sakila-structure.html[Sakila] training database for SQLite. (Note: Data about the film_text table is not provided in the script files, thus the film_text table is empty. Instead the film_id, title and description fields are included in the film table.)
+
+[,subs="attributes+"]
+----
+docker run -it --rm --name demo  \
+    {image-mixql-demo} \
+    sqlite3 /mixql/samples/db/sakila.db
+----
+of via docker compose:
+----
+docker compose run demo sqlite3 /mixql/samples/db/sakila.db
+----
+==== Expected result
+[,subs="attributes+"]
+----
+########################################################
+** Entrypoint for mixql-platform-demo-{app-version}-SNAPSHOT
+** Executing 'sqlite3 /mixql/samples/db/sakila.db'
+SQLite version 3.31.1 2020-01-27 19:55:54
+Enter ".help" for usage hints.
+sqlite> select count(1) from actor;
+200
+sqlite> .quit
+----
+
+=== Titanic
+In this repository on path `samples/db/titanic.db` is a popular dataset https://www.kaggle.com/c/titanic/data["titanic"] from kaggle in `.db` format from https://github.com/davidjamesknight/SQLite_databases_for_learning_data_science[davidjamesknight]
+
+[,subs="attributes+"]
+----
+docker run -it --rm --name demo  \
+    -v "/$(pwd)/samples/db/:/mixql-host/samples/db"     \
+    {image-mixql-demo} \
+    sqlite3 /mixql-host/samples/db/titanic.db
+----
+of via docker compose:
+----
+docker compose run demo sqlite3 /mixql-host/samples/db/titanic.db
+----
+
+==== Expected result
+[,subs="attributes+"]
+----
+########################################################
+** Entrypoint for mixql-platform-demo-{app-version}-SNAPSHOT
+** Executing 'sqlite3 /mixql-host/mixql/db/titanic.db'
+SQLite version 3.31.1 2020-01-27 19:55:54
+Enter ".help" for usage hints.
+sqlite> select count(1) from Observation;
+891
+sqlite> .quit
+----

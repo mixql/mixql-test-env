@@ -1,0 +1,12 @@
+bigtop::hadoop_head_node: main.mixql.loc
+hadoop::hadoop_storage_dirs: [/data/1, /data/2]
+bigtop::bigtop_repo_uri: http://repos.bigtop.apache.org/releases/3.2.0/ubuntu/20.04/$(ARCH)
+bigtop::bigtop_repo_gpg_check: true
+# Full list
+# hadoop_cluster_node::cluster_components: [hdfs, yarn, mapreduce, tez, oozie, hive, spark, livy, hbase, flink, kafka, zeppelin, gpdb, ambari]
+# Short list
+hadoop_cluster_node::cluster_components: [hdfs, mapreduce, yarn, oozie, hive, spark, tez]
+# hadoop_cluster_node::cluster_components: [hdfs, yarn, oozie]
+# Nodes
+hadoop_cluster_node::cluster_nodes: [172.18.0.2, 172.18.0.3]
+hadoop::common_yarn::yarn_resourcemanager_scheduler_class: org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler

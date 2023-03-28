@@ -1,0 +1,15 @@
+= Demo datasets
+:navtitle: Demo datasets
+:keywords: sql, engine, SQLite, hadoop, docker
+:description: Testing MixQL with docker and SQLite on demo datasets
+:source-language: console
+
+////
+Main links for editors:
+- AsciiDoc syntax https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/
+- Antora Pages https://docs.antora.org/antora/latest/page/
+////
+
+== SQLite datasets
+
+include::partial$datasets-sqlite.adoc[]

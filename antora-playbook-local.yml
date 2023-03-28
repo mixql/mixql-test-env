@@ -1,0 +1,29 @@
+site:
+  title: MixQL Test Env
+  # the 404 page and sitemap files only get generated when the url property is set
+  url: https://mixql.org
+  start_page: mixql-test-env::index.adoc
+  #robots: allow
+#urls:
+#  html_extension_style: drop
+content:
+  sources:
+    #  For local "author mode" builds check out this antora playbook project
+    - url: .
+      start_path: docs
+
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+  #supplemental_files: ./ui-src
+output:
+  clean: true
+  dir: ./public
+
+runtime:
+  fetch: true
+#antora:
+#  extensions:
+#    - require: '@antora/lunr-extension'
+#      index_latest_only: true

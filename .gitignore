@@ -1,0 +1,10 @@
+data/
+draft/
+public/
+app/
+.idea
+*.iml
+
+
+
+

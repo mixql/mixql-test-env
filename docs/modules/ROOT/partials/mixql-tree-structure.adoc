@@ -1,0 +1,18 @@
+[,subs="attributes+"]
+----
+/mixql                                        <-- preinstalled files in container
+|-- app                                       <-- precompiled app from git
+|   `-- mixql-platform-demo-0.3.0-SNAPSHOT
+|       |-- bin                               <-- execution script
+|       |-- lib                               <-- compiled libs
+|-- samples
+|   |-- db                                    <-- sample dataset in container
+|   `-- scripts
+|-- src
+|    `-- mixql-platform                       <-- source code from git
+|
+/mixql-host/                                  <-- shared folders from host
+|-- app                                       <-- compiled app from /mixql-host/src/
+|-- samples                                   <-- samples from host
+`-- src                                       <-- source code from host to compile
+----

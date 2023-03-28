@@ -1,0 +1,135 @@
+version: '3.9'
+name: 'mixql'
+
+services:
+
+  demo:
+    image: mixql/demo:0.1
+    build:
+      context: dockerfiles/demo
+      args:
+        JAVA_VERSION: 8.0.362-tem
+        SCALA_VERSION: 3.2.2
+        SBT_VERSION: 1.8.2
+        MIXQL_APP_VERSION: 0.3.0-SNAPSHOT
+        MIXQL_GIT_COMMIT: main
+        USER_UID: 1000
+        USER_GID: 1000
+        USER_NAME: sbt
+    domainname: mixql.loc
+    hostname: source
+    command: tree /mixql/app/git/ -L 2
+    volumes:
+      # folders from container
+      - mixql-app:/mixql/app/
+      - mixql-host-app:/mixql-host/app/
+      - mixql-src:/mixql/src/
+      - mixql-samples:/mixql/samples/
+      # shared folder from host
+      - ../mixql-platform/:/mixql-host/src/mixql-platform/
+      - ./samples/:/mixql-host/samples/
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    env_file: ./settings.env
+    networks:
+      mixql-net:
+        ipv4_address: 172.18.0.254
+
+  main:
+    image: mixql/bigtop:0.1
+    build:
+      context: dockerfiles/bigtop-image
+      args:
+        JAVA_VERSION: 8.0.362-tem
+        SCALA_VERSION: 3.2.2
+        SBT_VERSION: 1.8.2
+        MIXQL_APP_VERSION: 0.3.0-SNAPSHOT
+        MIXQL_GIT_COMMIT: main
+        BIGTOP_GIT_COMMIT: release-3.2.0
+        TZ: Europe/Moscow
+#    command: /sbin/init
+    domainname: mixql.loc
+    hostname: main
+    privileged: true
+#    init: true
+#    mem_limit: 4g
+    ports:
+      - 57000-57099:50070
+      - 57500-57599:50075
+      - 18000-18099:8088
+      - 8081-8090:8081
+    volumes:
+      - ./dockerfiles/hosts:/etc/hosts
+      # folders from container
+      - mixql-app:/mixql/app/
+      - mixql-host-app:/mixql-host/app/
+      - mixql-src:/mixql/src/
+      - mixql-samples:/mixql/samples/
+      # shared folder from host
+      - ../mixql-platform/:/mixql-host/src/mixql-platform/
+      - ./samples/:/mixql-host/samples/
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    env_file:
+      - ./settings.env
+    networks:
+      mixql-net:
+        ipv4_address: 172.18.0.2
+
+  node1:
+    image: mixql/bigtop:0.1
+    build:
+      context: dockerfiles/bigtop-image
+      args:
+        JAVA_VERSION: 8.0.362-tem
+        SCALA_VERSION: 3.2.2
+        SBT_VERSION: 1.8.2
+        MIXQL_APP_VERSION: 0.3.0-SNAPSHOT
+        MIXQL_GIT_COMMIT: main
+        BIGTOP_GIT_COMMIT: release-3.2.0
+        TZ: Europe/Moscow
+#    command: /sbin/init
+    domainname: mixql.loc
+    hostname: node1
+    privileged: true
+#    mem_limit: 4g
+    ports:
+      - 57000-57099:50070
+      - 57500-57599:50075
+      - 18000-18099:8088
+      - 8081-8090:8081
+    volumes:
+      - ./dockerfiles/hosts:/etc/hosts
+      # folders from container
+      - mixql-app:/mixql/app/
+      - mixql-host-app:/mixql-host/app/
+      - mixql-src:/mixql/src/
+      - mixql-samples:/mixql/samples/
+      # shared folder from host
+      - ../mixql-platform/:/mixql-host/src/mixql-platform/
+      - ./samples/:/mixql-host/samples/
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    env_file:
+      - ./settings.env
+    networks:
+      mixql-net:
+        ipv4_address: 172.18.0.3
+
+networks:
+  mixql-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+
+volumes:
+  # precompiled app
+  mixql-app:
+    driver: local
+  # git in container
+  mixql-src:
+    driver: local
+  # samples in container
+  mixql-samples:
+    driver: local
+  # folder for compiled app
+  mixql-host-app:
+    driver: local

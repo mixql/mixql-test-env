@@ -1,0 +1,12 @@
+[%autowidth]
+|===
+|Variable|Usage
+|SCRIPT|Specifies a file containing a mixql script to be executed by entrypoint.sh
+|DB|Specifies the database file SQLite should use entrypoint.sh or create if it not exists in
+|JAVA_VERSION|Version to install (mixql/demo image)
+|SCALA_VERSION|Version to install (mixql/demo image)
+|SBT_VERSION|Version to install (mixql/demo image)
+|MIXQL_APP_VERSION|Published version for path (mixql/demo image)
+|MIXQL_GIT_COMMIT|Git version of mixql to checkout (mixql/demo image)
+|BIGTOP_GIT_COMMIT|Git version of BigTop to checkout (mixql/bigtop image)
+|===
