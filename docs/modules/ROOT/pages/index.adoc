@@ -1,5 +1,5 @@
 = Overview
-:navtitle: Overview Test Environment
+:navtitle: Overview
 :keywords: mixql, hadoop, bigtop, docker, cluster
 :description: Hadoop testing environment
 
