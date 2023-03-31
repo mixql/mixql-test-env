@@ -1,3 +1,14 @@
 let engine "sqlite-local";
-let a = (select  count(who) from Observation t1 join who t2 on t1.who_id = t2.who_id);
+let a = (select
+            case when f.survived = 1 then 'Survived' else 'Not Survived' end as Survival_status,
+            count(*) as Survival_rate,
+            printf("%.2f", 100.0 * count(*) / max(f.total_passeng)) || " %" as Percent,
+            max(f.total_passeng) as Total_passengers
+            from   (
+                    select  count(*) over() as total_passeng,
+                            t.*
+                    from Observation t
+                    ) f
+            group by f.alive_id;
+        )
 print($a);
