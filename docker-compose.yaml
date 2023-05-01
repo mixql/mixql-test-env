@@ -4,21 +4,21 @@ name: 'mixql'
 services:
 
   demo:
-    image: mixql/demo:0.1
+    image: mixql/demo:0.4
     build:
       context: dockerfiles/demo
       args:
         JAVA_VERSION: 8.0.362-tem
         SCALA_VERSION: 3.2.2
         SBT_VERSION: 1.8.2
-        MIXQL_APP_VERSION: 0.3.0-SNAPSHOT
-        MIXQL_GIT_COMMIT: main
+        MIXQL_APP_VERSION: 0.4.0-SNAPSHOT
+        MIXQL_GIT_COMMIT: 0.4.1
         USER_UID: 1000
         USER_GID: 1000
         USER_NAME: sbt
     domainname: mixql.loc
     hostname: source
-    command: tree /mixql/app/git/ -L 2
+    command: tree /mixql/app/ -L 2
     volumes:
       # folders from container
       - mixql-app:/mixql/app/
@@ -35,15 +35,15 @@ services:
         ipv4_address: 172.18.0.254
 
   main:
-    image: mixql/bigtop:0.1
+    image: mixql/bigtop:0.4
     build:
       context: dockerfiles/bigtop-image
       args:
         JAVA_VERSION: 8.0.362-tem
         SCALA_VERSION: 3.2.2
         SBT_VERSION: 1.8.2
-        MIXQL_APP_VERSION: 0.3.0-SNAPSHOT
-        MIXQL_GIT_COMMIT: main
+        MIXQL_APP_VERSION: 0.4.0-SNAPSHOT
+        MIXQL_GIT_COMMIT: 0.4.1
         BIGTOP_GIT_COMMIT: release-3.2.0
         TZ: Europe/Moscow
 #    command: /sbin/init
@@ -75,15 +75,15 @@ services:
         ipv4_address: 172.18.0.2
 
   node1:
-    image: mixql/bigtop:0.1
+    image: mixql/bigtop:0.4
     build:
       context: dockerfiles/bigtop-image
       args:
         JAVA_VERSION: 8.0.362-tem
         SCALA_VERSION: 3.2.2
         SBT_VERSION: 1.8.2
-        MIXQL_APP_VERSION: 0.3.0-SNAPSHOT
-        MIXQL_GIT_COMMIT: main
+        MIXQL_APP_VERSION: 0.4.0-SNAPSHOT
+        MIXQL_GIT_COMMIT: 0.4.1
         BIGTOP_GIT_COMMIT: release-3.2.0
         TZ: Europe/Moscow
 #    command: /sbin/init

@@ -15,7 +15,7 @@ ARG SCALA_VERSION
 ENV SCALA_VERSION $SCALA_VERSION
 ARG SBT_VERSION
 ENV SBT_VERSION $SBT_VERSION
-ENV MIXQL_CLUSTER_BASE_PATH="/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin"
+ENV MIXQL_PLATFORM_DEMO_HOME_PATH="/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION"
 
 RUN . /etc/os-release
 RUN apt-get update -y && apt-get install -y \
@@ -77,7 +77,7 @@ RUN mkdir -p /etc/puppet/hieradata
 COPY config/hiera.yaml /etc/puppet/
 COPY config/hieradata /etc/puppet/hieradata
 
-ENV PATH="/mixql/:$PATH"
+ENV PATH="/mixql/:$MIXQL_PLATFORM_DEMO_HOME_PATH/bin:$PATH"
 WORKDIR /mixql
 COPY config/entrypoint.sh /mixql
 RUN chmod a+x /mixql/entrypoint.sh

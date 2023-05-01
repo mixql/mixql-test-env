@@ -1,8 +1,11 @@
 [,subs="attributes+"]
 ----
 /mixql                                        <-- preinstalled files in container
-|-- app                                       <-- precompiled app from git
-|   `-- mixql-platform-demo-0.3.0-SNAPSHOT
+|-- app/                                      <-- precompiled app from git
+|   `-- mixql-platform-demo-0.4.0-SNAPSHOT
+|       |-- bin                               <-- execution script
+|       |-- lib                               <-- compiled libs
+|   `-- mixql-platform-oozie-0.4.0-SNAPSHOT
 |       |-- bin                               <-- execution script
 |       |-- lib                               <-- compiled libs
 |-- samples

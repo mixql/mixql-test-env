@@ -94,13 +94,35 @@ Oozie server build version: {"build.version":"5.2.1","vc.url":"git@github.com:ap
 
 ----
 
+== Start demo Oozie app
 
-== Start demo app
+Copy app to hdfs
+
+----
+# hdfs dfs -copyFromLocal /mixql/app/mixql-platform-oozie-0.4.0-SNAPSHOT /user/root/
+# hdfs dfs -ls /user/root/
+Found 1 items
+drwxr-xr-x   - root hadoop          0 2023-05-01 13:30 /user/root/mixql-platform-oozie-0.4.0-SNAPSHOT
+----
+
+Run oozie app from samples
+----
+root@main:/mixql# oozie job -config /mixql-host/samples/oozie/job.properties -run
+...
+job: 0000003-230501102106681-oozie-oozi-W
+----
+
+Show log
+----
+oozie job -log 0000003-230501102106681-oozie-oozi-W
+----
+
+== Start demo SQLite app
 
 Start precompiled mixql-platform-demo from console with default configuration:
 ----
 docker compose exec main bash
-cd $MIXQL_CLUSTER_BASE_PATH
+cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
 ./mixql-platform-demo
 ----
 
@@ -112,7 +134,7 @@ docker compose exec main entrypont.sh run
 Start mixql-platform-demo with particular script and database from container console:
 ----
 docker compose exec main bash
-cd $MIXQL_CLUSTER_BASE_PATH
+cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
 ./mixql-platform-demo  \
     --sql-file /mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql \
     -Dmixql.org.engine.sqlight.db.path="jdbc:sqlite:/mixql-host/samples/db/titanic.db"
@@ -155,11 +177,11 @@ Generated app will be placed in `/mixql-host/app/` and available from hadoop con
 
 === Run compiled demo-app with SQLite dababase
 
-Change $MIXQL_CLUSTER_BASE_PATH to new path to `/mixql-host/app/` and then manually run
+Change $MIXQL_PLATFORM_DEMO_HOME_PATH to new path to `/mixql-host/app/` and then manually run
 ----
 docker compose exec main bash
-export MIXQL_CLUSTER_BASE_PATH="/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin"
-cd $MIXQL_CLUSTER_BASE_PATH
+export MIXQL_PLATFORM_DEMO_HOME_PATH="/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION"
+cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
 ./mixql-platform-demo  \
     --sql-file /mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql \
     -Dmixql.org.engine.sqlight.db.path="jdbc:sqlite:/mixql-host/samples/db/titanic.db"

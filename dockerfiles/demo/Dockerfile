@@ -25,14 +25,17 @@ RUN apt-get update && \
     yes | sdk install java $JAVA_VERSION && \
     yes | sdk install scala $SCALA_VERSION && \
     yes | sdk install sbt $SBT_VERSION" && \
-    mkdir -m a=rwx -p /mixql/app
+    mkdir -m a=rwx -p /mixql/app/
 WORKDIR /mixql/src
-RUN git clone --recurse-submodules -j8  https://github.com/mixql/mixql-platform.git && cd mixql-platform && git checkout $MIXQL_GIT_COMMIT && \
-    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
+RUN git clone --recurse-submodules -j8  https://github.com/mixql/mixql-platform.git && cd mixql-platform && git checkout $MIXQL_GIT_COMMIT
+RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
     cd /mixql/src/mixql-platform/ && \
-    sbt clean archiveMixQLPlatformDemo && \
-    tar -xzf /mixql/src/mixql-platform/mixql-platform-demo/target/universal/mixql-platform-demo-$MIXQL_APP_VERSION.tgz -C /mixql/app && \
+    sbt archiveMixQLPlatformDemo && \
+    sbt archiveMixQLPlatformOozie && \
+    tar -xzf /mixql/src/mixql-platform/mixql-platform-demo/target/universal/mixql-platform-demo-$MIXQL_APP_VERSION.tgz -C /mixql/app/ && \
+    tar -xzf /mixql/src/mixql-platform/mixql-platform-oozie/target/universal/mixql-platform-oozie-$MIXQL_APP_VERSION.tgz -C /mixql/app/ && \
     sbt clean"
+
 
 FROM ubuntu:20.04
 # Defining default versions
@@ -49,7 +52,7 @@ ARG SCALA_VERSION
 ENV SCALA_VERSION $SCALA_VERSION
 ARG SBT_VERSION
 ENV SBT_VERSION $SBT_VERSION
-ENV MIXQL_CLUSTER_BASE_PATH="/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin"
+ENV MIXQL_PLATFORM_DEMO_HOME_PATH="/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION"
 
 # Defining default non-root user UID, GID, and name
 ARG USER_UID="1000"
@@ -89,7 +92,7 @@ RUN curl -s "https://get.sdkman.io" | bash && \
 
 ENV MAVEN_HOME="/home/sbt/.sdkman/candidates/maven/current"
 ENV JAVA_HOME="/home/sbt/.sdkman/candidates/java/current"
-ENV PATH="$MAVEN_HOME/bin:$JAVA_HOME/bin:$MIXQL_CLUSTER_BASE_PATH:$PATH"
+ENV PATH="$MAVEN_HOME/bin:$JAVA_HOME/bin:$MIXQL_PLATFORM_DEMO_HOME_PATH/bin:$PATH"
 
 WORKDIR /mixql/samples/db
 RUN curl -sL https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/sakila-sample-database-ports/Sakila-sample-database-ports-v1.zip > /tmp/sakila.zip && \
@@ -98,8 +101,9 @@ RUN curl -sL https://storage.googleapis.com/google-code-archive-downloads/v2/cod
     mv /mixql/samples/db/sqlite-sakila.sq /mixql/samples/db/sakila.db && \
     rm -rf /tmp/sakila.zip /tmp/Sakila
 
-WORKDIR /mixql/app
+WORKDIR /mixql/app/
 COPY --from=builder /mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION ./mixql-platform-demo-$MIXQL_APP_VERSION
+COPY --from=builder /mixql/app/mixql-platform-oozie-$MIXQL_APP_VERSION ./mixql-platform-oozie-$MIXQL_APP_VERSION
 COPY --from=builder /mixql/src/mixql-platform /mixql/src/mixql-platform
 
 COPY entrypoint.sh /mixql
@@ -110,4 +114,5 @@ USER $USER_UID:$USER_GID
 WORKDIR /mixql
 ENTRYPOINT ["/mixql/entrypoint.sh"]
 CMD ["run"]
+
 

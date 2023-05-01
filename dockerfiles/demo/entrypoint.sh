@@ -33,11 +33,11 @@ function update() {
 function run() {
   echo "########################################################"
   echo "** Executing: ./mixql-platform-demo"
-  echo "** MIXQL_CLUSTER_BASE_PATH=$MIXQL_CLUSTER_BASE_PATH"
+  echo "** MIXQL_PLATFORM_DEMO_HOME_PATH=$MIXQL_PLATFORM_DEMO_HOME_PATH"
   echo "** DB=$DB"
   echo "** SCRIPT=$SCRIPT"
-  cd $MIXQL_CLUSTER_BASE_PATH
-  checkfile $MIXQL_CLUSTER_BASE_PATH/mixql-platform-demo
+  cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
+  checkfile $MIXQL_PLATFORM_DEMO_HOME_PATH/bin/mixql-platform-demo
   if [ -n "$DB" ]; then
     checkfile $DB
     dbfile="-Dmixql.org.engine.sqlight.db.path=\"jdbc:sqlite:$DB\""
@@ -52,45 +52,58 @@ function run() {
 }
 
 function compile() {
+  if [ "$1" = 'demo' ]; then
+    cmd="archiveMixQLPlatformDemo"
+  elif [ "$1" = 'oozie' ]; then
+    cmd="archiveMixQLPlatformOozie"
+  else
+    echo "** Unknown custom command: '$1'"
+  fi
   host_src_path=/mixql-host/src/mixql-platform
   host_tgt_path=/mixql-host/app/
   echo "########################################################"
   echo "** Src dir: $host_src_path"
   echo "** Tgt dir: $host_tgt_path"
-  echo "** Executing: sbt clean archiveMixQLPlatformDemo"
+  echo "** Executing: sbt clean $cmd"
   checkdir $host_src_path
   checkdir $host_tgt_path
   cd $host_src_path
-  sbt clean archiveMixQLPlatformDemo
+  sbt clean $cmd
   echo "** Executing: untar app to $host_tgt_path"
   checkdir $host_tgt_path/mixql-platform-demo-$MIXQL_APP_VERSION/
   rm -rf $host_tgt_path/mixql-platform-demo-$MIXQL_APP_VERSION/*
-  tar -xzf $host_src_path/mixql-platform-demo/target/universal/mixql-platform-demo-$MIXQL_APP_VERSION.tgz -C $host_tgt_path
+  tar -xzf $host_src_path/mixql-platform-demo/target/universal/mixql-platform-$1-$MIXQL_APP_VERSION.tgz -C $host_tgt_path
   tree $host_tgt_path -L 2
 }
 
 update
 if [ "$1" = 'run' ]; then
-  export MIXQL_CLUSTER_BASE_PATH=/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
+  export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION/
   run
   if [ "$2" = 'bash' ]; then
     exec bash
   fi
-elif [ "$1" = 'compile' ]; then
-  export MIXQL_CLUSTER_BASE_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
-  compile
+elif [ "$1" = 'compile-demo' ]; then
+  export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/
+  compile demo
+  if [ "$2" = 'bash' ]; then
+    exec bash
+  fi
+elif [ "$1" = 'compile-oozie' ]; then
+  export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/
+  compile oozie
   if [ "$2" = 'bash' ]; then
     exec bash
   fi
 elif [ "$1" = 'compile-run' ]; then
-  export MIXQL_CLUSTER_BASE_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
+  export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/
   compile
   run
   if [ "$2" = 'bash' ]; then
     exec bash
   fi
 elif [ "$1" = 'run-host' ]; then
-  export MIXQL_CLUSTER_BASE_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
+  export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/
   run
   if [ "$2" = 'bash' ]; then
     exec bash

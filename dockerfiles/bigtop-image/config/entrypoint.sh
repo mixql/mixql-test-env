@@ -48,11 +48,11 @@ function update() {
 function run() {
   echo "########################################################"
   echo "** Executing: ./mixql-platform-demo"
-  echo "** MIXQL_CLUSTER_BASE_PATH=$MIXQL_CLUSTER_BASE_PATH"
+  echo "** MIXQL_PLATFORM_DEMO_HOME_PATH=$MIXQL_PLATFORM_DEMO_HOME_PATH"
   echo "** DB=$DB"
   echo "** SCRIPT=$SCRIPT"
-  cd $MIXQL_CLUSTER_BASE_PATH
-  checkfile $MIXQL_CLUSTER_BASE_PATH/mixql-platform-demo
+  cd MIXQL_PLATFORM_DEMO_HOME_PATH/bin
+  checkfile MIXQL_PLATFORM_DEMO_HOME_PATH/bin/mixql-platform-demo
   if [ -n "$DB" ]; then
     checkfile $DB
     dbfile="-Dmixql.org.engine.sqlight.db.path=\"jdbc:sqlite:$DB\""
@@ -87,11 +87,11 @@ while [ $# -gt 0 ]; do
         fi
         shift;;
     run)
-        export MIXQL_CLUSTER_BASE_PATH=/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
+        export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
         run
         shift;;
     run-host)
-        export MIXQL_CLUSTER_BASE_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
+        export MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION/bin
         run
         shift;;
     -h|--help)

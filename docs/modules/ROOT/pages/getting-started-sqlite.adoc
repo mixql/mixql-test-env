@@ -33,7 +33,7 @@ docker run -it --rm --name demo  {image-mixql-demo} run
 ** Entrypoint for mixql-platform-demo-{app-version}-SNAPSHOT
 ########################################################
 ** Executing: ./mixql-platform-demo
-** MIXQL_CLUSTER_BASE_PATH=/mixql/app/mixql-platform-demo-{app-version}-SNAPSHOT/bin
+** MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql/app/mixql-platform-demo-{app-version}-SNAPSHOT/bin
 ** DB=
 ** SCRIPT=
 ** Cmdline: /mixql/app/mixql-platform-demo-{app-version}-SNAPSHOT/bin/mixql-platform-demo
@@ -89,7 +89,7 @@ $ docker run -it --rm --name demo  \
 ** Entrypoint for mixql-platform-demo-{app-version}-SNAPSHOT
 ########################################################
 ** Executing: ./mixql-platform-demo
-** MIXQL_CLUSTER_BASE_PATH=/mixql/app/mixql-platform-demo-{app-version}-SNAPSHOT/bin
+** MIXQL_PLATFORM_DEMO_HOME_PATH=/mixql/app/mixql-platform-demo-{app-version}-SNAPSHOT/bin
 ** DB=
 ** SCRIPT=/mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql
 ** Cmdline: /mixql/app/mixql-platform-demo-{app-version}-SNAPSHOT/bin/mixql-platform-demo  --sql-file /mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql
@@ -122,7 +122,7 @@ The container can be started with a volume linked to it to persist data and scri
 ----
 docker run -it --rm --name demo  \
     -v "/$(pwd)/samples/:/mixql-host/samples/" \
-    -e SCRIPT=/mixql-host/samples/scripts/test-titanic.sql \
+    -e SCRIPT=/mixql-host/samples/scripts/mixql-test-titanic.sql \
     -e DB=/mixql-host/samples/db/titanic.db \
     {image-mixql-demo}
 ----

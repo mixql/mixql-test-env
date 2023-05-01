@@ -11,7 +11,7 @@ asciidoc:
     url-repo: https://github.com/mixql/mixql-test-env
     release-date: 2023-03-28
     release-tag: latest
-    release-version: '0.3.0'
-    app-version: '0.3.0'
-    image-mixql-demo: 'mixql/demo:0.1'
-    image-mixql-bigtop: 'mixql/bigtop:0.1'
+    release-version: '0.4.0'
+    app-version: '0.4.0'
+    image-mixql-demo: 'mixql/demo:0.4'
+    image-mixql-bigtop: 'mixql/bigtop:0.4'
