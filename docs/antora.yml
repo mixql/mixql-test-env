@@ -1,6 +1,6 @@
 name: mixql-test-env
 title: MixQL Test Environment
-version: '0.1.0'
+version: '0.4.0'
 start_page: index.adoc
 
 nav:
@@ -9,7 +9,7 @@ nav:
 asciidoc:
   attributes:
     url-repo: https://github.com/mixql/mixql-test-env
-    release-date: 2023-03-28
+    release-date: 2023-05-01
     release-tag: latest
     release-version: '0.4.0'
     app-version: '0.4.0'
