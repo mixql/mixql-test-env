@@ -20,6 +20,13 @@ function checkdir() {
 function oozie-start () {
   # Bug Oozie must read ssl-client.xml
   chmod o+r /etc/hadoop/conf/ssl-client.xml
+  wget http://archive.cloudera.com/gplextras/misc/ext-2.2.zip -O /lib/oozie/libext/ext-2.2.zip
+  chown -R oozie:oozie /lib/oozie/libext/ext-2.2.zip
+  /lib/oozie/bin/oozie-setup.sh
+  /lib/oozie/bin/oozie-setup.sh sharelib create -fs hdfs://main.mixql.loc:8020 -locallib /lib/oozie/oozie-sharelib.tar.gz
+  sudo -u hdfs hdfs dfs -rm -R /user/oozie/share/lib
+  l=$(hadoop fs -ls /user/root/share/lib | grep -oE '/lib_[0-9]{14}' | sed 's/\/lib_/lib_/')
+  sudo -u hdfs hdfs dfs -mv /user/root/share/lib/$l /user/oozie/share/lib
   service oozie start
 }
 
