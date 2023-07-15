@@ -113,6 +113,40 @@ services:
       mixql-net:
         ipv4_address: 172.18.0.3
 
+  wg:
+    image: lscr.io/linuxserver/wireguard:latest
+    #        container_name: wg
+    domainname: mixql.loc
+    hostname: wg
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Moscow
+      - SERVERURL=wg #optional
+      - SERVERPORT=51820 #optional
+      - PEERS=4 #optional
+      - PEERDNS=auto #optional
+      - INTERNAL_SUBNET=10.13.13.0 #optional
+      - ALLOWEDIPS=0.0.0.0/0 #optional
+      - PERSISTENTKEEPALIVE_PEERS= #optional
+      - LOG_CONFS=true #optional
+    volumes:
+      - ./dockerfiles/hosts:/etc/hosts
+      - ./dockerfiles/wg/config:/config
+      - /lib/modules:/lib/modules #optional
+    ports:
+      - 51820:51820/udp
+      - 8081-8090:8081
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+    networks:
+      mixql-net:
+        ipv4_address: 172.18.0.250
+
 networks:
   mixql-net:
     driver: bridge

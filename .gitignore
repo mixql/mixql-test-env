@@ -2,9 +2,11 @@ data/
 draft/
 public/
 app/
+
 .idea
 *.iml
 
-
+# auto-generated config for WireGuard
+dockerfiles/wg/config/
 
 

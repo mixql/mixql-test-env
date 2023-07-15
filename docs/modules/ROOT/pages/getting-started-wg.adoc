@@ -1,0 +1,274 @@
+= Getting started with Bigtop and Wireguard
+:navtitle: Getting started with Wireguard
+:keywords: sql, engine, BigTop, docker, Wireguard
+:description: Testing MixQL with docker compose and BigTop via VPM Wireguard
+:source-language: console
+
+////
+Main links for editors:
+- AsciiDoc syntax https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/
+- Antora Pages https://docs.antora.org/antora/latest/page/
+////
+
+== What is this?
+
+WireGuard® is an extremely simple yet fast and modern VPN that utilizes state-of-the-art cryptography. It aims to be faster, simpler, leaner, and more useful than IPsec, while avoiding the massive headache. We use https://github.com/linuxserver/docker-wireguard
+
+=== Quick Start
+
+Clone mixql-test-env to /mixql and start cluster:
+----
+git clone https://github.com/ntlegion/mixql-test-env.git
+cd mixql-test-env
+docker compose up -d
+docker compose -f docker-compose.yaml up -d
+----
+
+==== Expected reuslt
+----
+docker compose up -d
+[+] Running 8/8
+ ⠿ Network mixql_mixql-net        Created                                                                          0.0s
+ ⠿ Volume "mixql_mixql-app"       Created                                                                          0.0s
+ ⠿ Volume "mixql_mixql-host-app"  Created                                                                          0.0s
+ ⠿ Volume "mixql_mixql-src"       Created                                                                          0.0s
+ ⠿ Volume "mixql_mixql-samples"   Created                                                                          0.0s
+ ⠿ Container mixql-node1-1        Started                                                                          1.2s
+ ⠿ Container mixql-main-1         Started                                                                          1.1s
+ ⠿ Container mixql-demo-1         Started                                                                          1.0s
+----
+
+Listing containers must show containers running and the port mapping as below:
+----
+docker compose ps
+----
+
+==== Expected reuslt
+----
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+mixql-demo-1        "/mixql/entrypoint.s…"   demo                exited (0)
+mixql-main-1        "/mixql/entrypoint.s…"   main                running             0.0.0.0:8088->8081/tcp, :::8088->8081/tcp, 0.0.0.0:18017->8088/tcp, :::18017->8088/tcp, 0.0.0.0:57017->50070/tcp, :::57017->50070/tcp, 0.0.0.0:57517->50075/tcp, :::57517->50075/tcp
+mixql-node1-1       "/mixql/entrypoint.s…"   node1               running             0.0.0.0:8087->8081/tcp, :::8087->8081/tcp, 0.0.0.0:18016->8088/tcp, :::18016->8088/tcp, 0.0.0.0:57016->50070/tcp, :::57016->50070/tcp, 0.0.0.0:57516->50075/tcp, :::57516->50075/tcp
+----
+
+At the first start all dependencies will be installed in the hadoop containers (main + node1) by masterless puppet within 10 minutes. Next time container will be started faster (1-2 min).
+
+Live logs from container: `docker compose logs -f main`.
+
+=== Check hadoop services
+----
+docker compose exec main bash
+root@main:/mixql# hdfs dfs -ls /
+hdfs dfs -ls /
+Found 7 items
+drwxr-xr-x   - hdfs  hadoop          0 2023-03-28 10:58 /apps
+drwxrwxrwx   - hdfs  hadoop          0 2023-03-28 10:58 /benchmarks
+drwxr-xr-x   - hbase hbase           0 2023-03-28 10:58 /hbase
+drwxr-xr-x   - solr  solr            0 2023-03-28 10:58 /solr
+drwxrwxrwt   - hdfs  hadoop          0 2023-03-28 10:59 /tmp
+drwxr-xr-x   - hdfs  hadoop          0 2023-03-28 10:58 /user
+drwxr-xr-x   - hdfs  hadoop          0 2023-03-28 10:58 /var
+
+root@main:/mixql# spark-shell
+...
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 3.2.3
+      /_/
+
+Using Scala version 2.12.15, OpenJDK 64-Bit Server VM, 1.8.0_362
+
+root@main:/mixql# beeline -u jdbc:hive2://localhost:10000/default -n testuser -e "show databases"
+...
++----------------+
+| database_name  |
++----------------+
+| default        |
++----------------+
+1 row selected (1.001 seconds)
+Beeline version 3.1.3 by Apache Hive
+
+root@main:/mixql# oozie admin -version
+Oozie server build version: {"build.version":"5.2.1","vc.url":"git@github.com:apache\/oozie.git","vc.revision":"branch-5.2@8f0e5ee09","build.time":"2022.12.25-07:25:51GMT -Dvc.revision=unavailable -Dvc.url=unavailable -DgenerateDocs","build.user":"jenkins"}
+
+----
+
+== Start demo Oozie app
+
+Copy app to hdfs
+
+----
+# hdfs dfs -copyFromLocal /mixql/app/mixql-platform-oozie-0.4.0-SNAPSHOT /user/root/
+# hdfs dfs -ls /user/root/
+Found 1 items
+drwxr-xr-x   - root hadoop          0 2023-05-01 13:30 /user/root/mixql-platform-oozie-0.4.0-SNAPSHOT
+----
+
+Run oozie app from samples
+----
+root@main:/mixql# oozie job -config /mixql-host/samples/oozie/job.properties -run
+...
+job: 0000003-230501102106681-oozie-oozi-W
+----
+
+Show log
+----
+oozie job -log 0000003-230501102106681-oozie-oozi-W
+----
+
+== Start demo SQLite app
+
+Start precompiled mixql-platform-demo from console with default configuration:
+----
+docker compose exec main bash
+cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
+./mixql-platform-demo
+----
+
+or by /mixql/entrypoint.sh:
+----
+docker compose exec main entrypont.sh run
+----
+
+Start mixql-platform-demo with particular script and database from container console:
+----
+docker compose exec main bash
+cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
+./mixql-platform-demo  \
+    --sql-file /mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql \
+    -Dmixql.org.engine.sqlight.db.path="jdbc:sqlite:/mixql-host/samples/db/titanic.db"
+----
+or by /mixql/entrypoint.sh:
+----
+docker compose exec \
+    -e SCRIPT=/mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql \
+    -e DB=/mixql-host/samples/db/titanic.db
+    main entrypont.sh run
+----
+
+
+== Compile and run
+
+Source must be placed in parent folder like this:
+----
+/mixql
+|mixql-platform  <- source code
+|mixql-test-env  <- test environment
+----
+
+Create folders and get the code:
+[,console]
+----
+mkdir mixql && cd mixql
+git clone https://github.com/ntlegion/mixql-test-env.git
+git clone https://github.com/mixql/mixql-platform.git
+cd mixql-test-env
+----
+
+=== Compile app from host source
+
+You can change source code on the host and compile it by container `demo`
+----
+docker compose run -it --rm demo compile
+----
+
+Generated app will be placed in `/mixql-host/app/` and available from hadoop containers.
+
+=== Run compiled demo-app with SQLite dababase
+
+Change $MIXQL_PLATFORM_DEMO_HOME_PATH to new path to `/mixql-host/app/` and then manually run
+----
+docker compose exec main bash
+export MIXQL_PLATFORM_DEMO_HOME_PATH="/mixql-host/app/mixql-platform-demo-$MIXQL_APP_VERSION"
+cd $MIXQL_PLATFORM_DEMO_HOME_PATH/bin
+./mixql-platform-demo  \
+    --sql-file /mixql/src/mixql-platform/mixql-platform-demo/src/test/resources/test_simple_func.sql \
+    -Dmixql.org.engine.sqlight.db.path="jdbc:sqlite:/mixql-host/samples/db/titanic.db"
+----
+
+Run compiled app with sqlite database and script from host:
+----
+docker compose exec   \
+    -e SCRIPT=/mixql-host/samples/scripts/test-titanic.sql \
+    -e DB=/mixql-host/samples/db/titanic.db \
+    main entrypoint.sh run-host
+----
+
+== Shut down
+
+* Stop and ready to quick start
++
+Stop services: `docker compose stop`.
++
+After this containers and volumes are not destroyed and will be run quickly next time.
++
+Start cluster again: `docker compose start`.
+
+* Stop and remove containers
++
+Turn off the cluster after work (only delete containers): `docker compose down`.
+
+* Stop and full cleaning
++
+Clean volumes and images used by services (stops containers and removes containers, networks, volumes, and images created by up):
++
+----
+docker compose  down --volumes --rmi all
+----
+
+Check system: `docker system df`
+
+== Web access
+
+You can get access to the all web services inside docker network through WireGuard VPN. One of the services of docker-compose is wg: VPN server (https://github.com/linuxserver/docker-wireguard).
+
+The container will run in server mode and the necessary server and peer/client confs will be generated. The peer/client config qr codes will be output in the docker log. They will also be saved in text and png format under /config/peerX.
+
+Use VPN-client (https://www.wireguard.com/install/) to connect to endpoint.
+
+Use configuration from ./dockerfiles/wg/config/peerX.conf. Change Endpoint to real external IP of your server.
+
+To rebuild configuration just delete content of ./dockerfiles/wg/config and restart docker-compose.
+
+== For developers
+=== Folder structure
+
+include::partial$mixql-tree-structure.adoc[]
+
+=== Environment variables
+
+include::partial$mixql-env.adoc[]
+
+=== Rebuild images
+
+To build only Hadoop image: `docker compose build main`.
+
+To rebuild all image: `docker compose build --no-cache`
+
+=== Prepared commands for hadoop container entrypoint
+
+----
+docker compose exec main entrypoint.sh COMMAND
+----
+COMMAND:
+
+* puppet - install Hadoop services by puppet
+* run - run precompiled app from /mixql/app;
+* run-host - run compiled app from /mixql-host/app. Be sure app is ready to use (is compiled);
+* bash - run bash shell
+* wait - infinite loop
+* any other string will be executed by exec
+
+Use  word `bash` after main command (run, puppet...) to stay in bash after execution:
+----
+docker compose exec main entrypoint.sh run-host bash
+----
+
+=== Ports
+* Namenode: http://<dockerhadoop_IP_address>:9870/dfshealth.html#tab-overview
+* History server: http://<dockerhadoop_IP_address>:8188/applicationhistory
+* Datanode: http://<dockerhadoop_IP_address>:9864/
+* Nodemanager: http://<dockerhadoop_IP_address>:8042/node
+* Resource manager: http://<dockerhadoop_IP_address>:8088/
