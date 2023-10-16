@@ -5,7 +5,8 @@ app/
 
 .idea
 *.iml
-
+# saved secrets for VPN
+settings.env
 # auto-generated config for WireGuard
 dockerfiles/wg/config/
 
