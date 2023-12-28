@@ -3,36 +3,36 @@ name: 'mixql'
 
 services:
 
-  demo:
-    image: mixql/demo:0.4
-    build:
-      context: dockerfiles/demo
-      args:
-        JAVA_VERSION: 8.0.362-tem
-        SCALA_VERSION: 3.2.2
-        SBT_VERSION: 1.8.2
-        MIXQL_APP_VERSION: 0.4.0-SNAPSHOT
-        MIXQL_GIT_COMMIT: 0.4.1
-        USER_UID: 1000
-        USER_GID: 1000
-        USER_NAME: sbt
-    domainname: mixql.loc
-    hostname: source
-    command: tree /mixql/app/ -L 2
-    volumes:
-      # folders from container
-      - mixql-app:/mixql/app/
-      - mixql-host-app:/mixql-host/app/
-      - mixql-src:/mixql/src/
-      - mixql-samples:/mixql/samples/
-      # shared folder from host
-      - ../mixql-platform/:/mixql-host/src/mixql-platform/
-      - ./samples/:/mixql-host/samples/
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    env_file: ./settings.env
-    networks:
-      mixql-net:
-        ipv4_address: 172.18.0.254
+#  demo:
+#    image: mixql/demo:0.4
+#    build:
+#      context: dockerfiles/demo
+#      args:
+#        JAVA_VERSION: 8.0.362-tem
+#        SCALA_VERSION: 3.2.2
+#        SBT_VERSION: 1.8.2
+#        MIXQL_APP_VERSION: 0.4.0-SNAPSHOT
+#        MIXQL_GIT_COMMIT: 0.4.1
+#        USER_UID: 1000
+#        USER_GID: 1000
+#        USER_NAME: sbt
+#    domainname: mixql.loc
+#    hostname: source
+#    command: tree /mixql/app/ -L 2
+#    volumes:
+#      # folders from container
+#      - mixql-app:/mixql/app/
+#      - mixql-host-app:/mixql-host/app/
+#      - mixql-src:/mixql/src/
+#      - mixql-samples:/mixql/samples/
+#      # shared folder from host
+#      - ../mixql-platform/:/mixql-host/src/mixql-platform/
+#      - ./samples/:/mixql-host/samples/
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#    env_file: ./settings.env
+#    networks:
+#      mixql-net:
+#        ipv4_address: 172.18.0.254
 
   main:
     image: mixql/bigtop:0.4
@@ -118,43 +118,46 @@ services:
       mixql-net:
         ipv4_address: 172.18.0.3
 
-  netbird:
-    image: 'netbirdio/netbird:latest'
-    container_name: netbird_docker
-    network_mode: host
-    hostname: netbird
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
-      - SYS_RESOURCE
-    environment:
-      - NB_SETUP_KEY=${NB_SETUP_KEY}
-    privileged: true
-    volumes:
-      - nb-volume:/etc/netbird
-
-#  tailscale:
-#    container_name: tailscaled
-#    image: tailscale/tailscale
+#  netbird:
+#    image: 'netbirdio/netbird:latest'
+#    container_name: netbird
 #    network_mode: host
+#    hostname: netbird
 #    cap_add:
 #      - NET_ADMIN
-#      - NET_RAW
+#      - SYS_ADMIN
+#      - SYS_RESOURCE
+#    env_file: ./settings.env
+##    environment:
+##      - NB_SETUP_KEY=${NB_SETUP_KEY}
+#    privileged: true
 #    volumes:
-#      - /dev/net/tun:/dev/net/tun
-#      #- /home/io/docker_config/tailscale/varlib:/var/lib
-#      - ts-volume:/var/lib
-#      # https://github.com/tailscale/tailscale/issues/6849
-#      # add volume for the tailscaled.sock to be present on the host system
-#      # that's where caddy goes to communicate with tailscale
-#      #- /home/io/docker_config/tailscale/tmp:/tmp
-#    environment:
-#      # https://github.com/tailscale/tailscale/issues/4913#issuecomment-1186402307
-#      # we have to tell the container to put the state in the same folder
-#      # that way the state is saved on the host and survives reboot of the container
-#      - TS_STATE_DIR=/var/lib/tailscale
-#      # this have to be used only on the first time
-#      # after that, the state is saved in /var/lib/tailscale and the next line can be commented out
+#      - nb-volume:/etc/netbird
+
+  tailscale:
+    container_name: tailscaled
+    image: tailscale/tailscale
+    hostname: main
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - /dev/net/tun:/dev/net/tun
+      #- /home/io/docker_config/tailscale/varlib:/var/lib
+      - ts-volume:/var/lib
+      # https://github.com/tailscale/tailscale/issues/6849
+      # add volume for the tailscaled.sock to be present on the host system
+      # that's where caddy goes to communicate with tailscale
+      #- /home/io/docker_config/tailscale/tmp:/tmp
+    env_file: ./settings.env
+    environment:
+#       https://github.com/tailscale/tailscale/issues/4913#issuecomment-1186402307
+#       we have to tell the container to put the state in the same folder
+#       that way the state is saved on the host and survives reboot of the container
+      - TS_STATE_DIR=/var/lib/tailscale
+      # this have to be used only on the first time
+      # after that, the state is saved in /var/lib/tailscale and the next line can be commented out
 #      - TS_AUTH_KEY=${TS_AUTH_KEY}
 #      - TS_ROUTES=172.18.0.0/24
 #      - TS_HOSTNAME=tailscale

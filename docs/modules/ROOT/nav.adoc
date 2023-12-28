@@ -2,6 +2,7 @@
 * Getting started
 ** xref:getting-started-sqlite.adoc[]
 ** xref:getting-started-bigtop.adoc[]
+** xref:getting-started-network.adoc[]
 * xref:datasets.adoc[]
 
 .Links
