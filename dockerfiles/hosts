@@ -4,3 +4,4 @@
 172.18.0.12 huedatabase.mixql.loc huedatabase
 
 172.18.0.20 cassandra.mixql.loc cassandra
+172.18.0.200 tailscale.mixql.loc ts

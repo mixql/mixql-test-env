@@ -1,6 +1,6 @@
 = Network Configuration
 :navtitle: Network Configuration
-:keywords: BigTop, docker, network, vpn, tailscale
+:keywords: BigTop, docker, network, vpn, tailscale, wireguard, netbird
 :description: Network Configuration for Hadoop Cluster
 :source-language: console
 
@@ -18,7 +18,7 @@ Each node contains its own set of services and ports to interact with them. Some
 
 To facilitate network access to the cluster's internal network wherever it is running, we can use several approaches. The most convenient, but requiring additional customization, is access via VPN. We can also use the built-in SSH access and the usual docker commands.
 
-=== Zero-configuration VPN
+== Zero-configuration VPN
 We can bring intranet on the internet with Zero-Config Mesh VPNs without having to worry about setting up a server like OpenVPN Server and spending days configuring it. Zero configuration networking allows you to automatically create a network of devices without having to manually configure a DHCP server, DNS services, or network settings for each device that you want to connect to that network.
 
 We have these preconfigured Zero VPN services based on Wireguard:
@@ -28,12 +28,111 @@ We have these preconfigured Zero VPN services based on Wireguard:
 
 Docker compose file has sections for configuring VPN access to hadoop cluster. You need to select the desired VPN service and then configure appropriate service in the docker-compose file.
 
-==== Tailscale
+=== Tailscale
+
+==== Configuring workstation
 
 1. https://tailscale.com/kb/installation[Install Tailscale] on your workstation
-2.
+2. Sign up for an account  (works on top of the identity provider, Tailscale does not support sign-up with email addresses).
 
-==== Netbird
+==== Getting the Auth key
+https://tailscale.com/kb/1085/auth-keys[Generate auth-key for docker client]
+
+1. Go to Settings/Key and generate auth key
+** Description you want, e.g. docker-client
+** Reusable ✔️
+** Pre-approved ✔️
+** After your key has been successfully created, copy and store it in a secure location.
+
+==== Docker configuration
+
+1. Uncomment the Tailscale section in `docker-compose.yaml`
+2. Replace TS_AUTH_KEY in the `settings.env` parameter with the received key.
+3. Restart the cluster `docker compose up -d` or just start the required service: `docker compose start tailscale'
+
+==== Approving sub-routes for machine
+
+1. After starting of service tailscale the connection with VPN will established. On the Tailscale website, select  https://login.tailscale.com/admin/machines[Machines] new device with auto-generated name from OS hostname will appear (e.g. "tailscale").
+2. Machine settings
+
+** Click on the ellipsis icon menu at the far right and select the "Disable Key Expiry" option (https://tailscale.com/kb/1028/key-expiry)
+** Edit route settings of machine in the same menu:
+*** Approve subnet routes 172.18.0.0/24
+*** Tick "Use as exit node" if you want to use this machine as a full-tunnel VPN (all traffic will be routed through Tailscale).
+
+After that you can check network access to inner adresses within docker cluster.
+
+
+=== Netbird
+==== Configuring workstation and getting auth key
+1. https://docs.netbird.io/how-to/installation[Install netbird client] and create your account.
+2. Add new setup key on the page https://app.netbird.io/setup-keys[Setup keys].
+** Reusable ✔️
+** After your key has been successfully created, copy and store it in a secure location.
+
+==== Docker configuration
+1. Uncomment the Netbird section in `docker-compose.yaml`
+2. Replace NB_SETUP_KEY in the `settings.env` parameter with the received key.
+3. Restart the cluster `docker compose up -d` or just start the required service: `docker compose start tailscale'
+
+==== Approving sub-routes for machine
+
+1. After starting of service netbird the connection with VPN will established. On the Netbird website, select  https://app.netbird.io/peers[Peers] new peer will appear (e.g. "netbird").
+2. Route settings
+
+** Add route settings on the page https://app.netbird.io/routes[Network Routes]:
+*** Network Range: 172.18.0.0/24
+*** Routing Peer - choose created peer (e.g. "netbird")
+*** Distribution groups: All.
+*** Enabled ✔️
+
+After that you can check network access to inner adresses within docker cluster.
+
+=== Configuring workstation
+
+To make working with network addresses more convenient, we can add Hadoop service addresses to the workstation settings.
+
+==== Hosts
+Update hosts file on local workstation
+On you local workstaion add required IP in the hosts-file.
+You may copy it from './dockerfiles/hosts'.
+
+For Windows: 'Windows/system32/drivers/etc/hosts'.
+Add there content from './dockerfiles/hosts' like in this example:
+----
+# Previous content of hosts, e.g. added by Docker Desktop
+192.168.100.24 host.docker.internal
+192.168.100.24 gateway.docker.internal
+
+# Add here new adresses from './dockerfiles/hosts'
+172.18.0.2 main.mixql.loc main
+172.18.0.3 node1.mixql.loc node1
+172.18.0.11 hue.mixql.loc hue
+172.18.0.12 huedatabase.mixql.loc huedatabase
+----
+
+==== Test connection
+
+Now you can check Hadoop services.
+
+include::partial$hadoop-endpoints.adoc[]
+
+==== Test connection
+
+
+
+
+
+
+
+You can set https://tailscale.com/kb/1282/docker[additional parameters] for use with the Tailscale Docker image.
+
+===== Tailscale for Docker Desktop
+
+https://tailscale.com/kb/1184/docker-desktop
+
+
+
 
 
 === Wireguard
@@ -42,9 +141,3 @@ You can use your own Wireguard service inside docker network.
 
 == SSH
 
-=== Ports
-* Namenode: http://<dockerhadoop_IP_address>:9870/dfshealth.html#tab-overview
-* History server: http://<dockerhadoop_IP_address>:8188/applicationhistory
-* Datanode: http://<dockerhadoop_IP_address>:9864/
-* Nodemanager: http://<dockerhadoop_IP_address>:8042/node
-* Resource manager: http://<dockerhadoop_IP_address>:8088/

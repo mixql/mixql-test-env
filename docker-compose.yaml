@@ -102,7 +102,7 @@ services:
       - "20888-21888:20888"
       - "19888-19899:19888"
     volumes:
-      - ./dockerfiles/hosts:/etc/hosts
+      #- ./dockerfiles/hosts:/etc/hosts
       # folders from container
       - mixql-app:/mixql/app/
       - mixql-host-app:/mixql-host/app/
@@ -118,26 +118,28 @@ services:
       mixql-net:
         ipv4_address: 172.18.0.3
 
-#  netbird:
-#    image: 'netbirdio/netbird:latest'
-#    container_name: netbird
-#    network_mode: host
-#    hostname: netbird
-#    cap_add:
-#      - NET_ADMIN
-#      - SYS_ADMIN
-#      - SYS_RESOURCE
-#    env_file: ./settings.env
-##    environment:
-##      - NB_SETUP_KEY=${NB_SETUP_KEY}
-#    privileged: true
-#    volumes:
-#      - nb-volume:/etc/netbird
+
+  netbird:
+    image: 'netbirdio/netbird:latest'
+    #container_name: netbird
+    network_mode: host
+    hostname: netbird
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    #env_file: ./settings.env
+    environment:
+      - NB_SETUP_KEY=
+    privileged: true
+    volumes:
+      - nb-volume:/etc/netbird
 
   tailscale:
-    container_name: tailscaled
+    #container_name: tailscaled
     image: tailscale/tailscale
-    hostname: main
+    domainname: mixql.loc
+    hostname: tailscale
     network_mode: host
     cap_add:
       - NET_ADMIN
@@ -150,7 +152,8 @@ services:
       # add volume for the tailscaled.sock to be present on the host system
       # that's where caddy goes to communicate with tailscale
       #- /home/io/docker_config/tailscale/tmp:/tmp
-    env_file: ./settings.env
+    env_file:
+      - ./settings.env
     environment:
 #       https://github.com/tailscale/tailscale/issues/4913#issuecomment-1186402307
 #       we have to tell the container to put the state in the same folder
@@ -158,10 +161,11 @@ services:
       - TS_STATE_DIR=/var/lib/tailscale
       # this have to be used only on the first time
       # after that, the state is saved in /var/lib/tailscale and the next line can be commented out
-#      - TS_AUTH_KEY=${TS_AUTH_KEY}
-#      - TS_ROUTES=172.18.0.0/24
-#      - TS_HOSTNAME=tailscale
-#      - TS_EXTRA_ARGS=--accept-routes --advertise-exit-node
+      - TS_AUTH_KEY=
+      #- TS_AUTH_KEY=${TS_AUTH_KEY}
+      - TS_ROUTES=172.18.0.0/24
+      - TS_HOSTNAME=tailscale
+      - TS_EXTRA_ARGS=--accept-routes --advertise-exit-node --force-reauth
 
 
 networks:
